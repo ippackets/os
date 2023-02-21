@@ -1,0 +1,85 @@
+import java.util.concurrent.Semaphore;
+class Queue
+{
+    int item;
+    static Semaphore consumer = new Semaphore(0);
+    static  Semaphore producer = new Semaphore(1);
+
+    void getItem()
+    {
+        try
+        {
+            //Before consumer can consume an item,it must acquire a permission
+            consumer.acquire();
+        }
+        catch (InterruptedException e)
+        {
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println("Consumer consumed item : " + item);
+
+        //After Consumer consumed item it should be notified to producer
+        producer.release();
+    }
+
+    //To put Item
+    void putItem(int item)
+    {
+        try {
+            //Before Producer can produce an item,it must acquire a permission
+            producer.acquire();
+        }
+        catch (InterruptedException e)
+        {
+            System.out.println(e.getMessage());
+        }
+
+        this.item = item;
+        System.out.println("Producer produced item : " + item);
+
+        //After Producer produced item it should be notified to consumer
+
+        consumer.release();
+    }
+}
+
+class Producer implements Runnable {
+    Queue queue;
+    Producer(Queue queue)
+    {
+        this.queue = queue;
+        new Thread(this, "Producer").start();
+    }
+
+    public void run()
+    {
+        for (int i = 0; i < 5; i++)
+            // producer put items
+            queue.putItem(i);
+    }
+}
+
+class Consumer implements Runnable {
+    Queue queue;
+    Consumer(Queue queue)
+    {
+        this.queue = queue;
+        new Thread(this, "Consumer").start();
+    }
+
+    public void run()
+    {
+        for (int i = 0; i < 5; i++)
+            // consumer get items
+            queue.getItem();
+    }
+}
+
+public class ProducerConsumer {
+    public static void main(String[] args) {
+        Queue queue = new Queue();
+        new Consumer(queue);
+        new Producer(queue);
+    }
+}

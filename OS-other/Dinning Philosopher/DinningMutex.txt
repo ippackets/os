@@ -1,0 +1,118 @@
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class DinningPhilosofer {
+
+    static int totalPhilospoher = 5 ;
+    static Philosopher philosopher[] = new Philosopher[totalPhilospoher];
+    static Chopstick chopstick[] = new Chopstick[totalPhilospoher];
+
+    static class Chopstick{
+        public Semaphore mutex = new Semaphore(1);
+
+        void grab()
+        {
+            try {
+                mutex.acquire();
+            }
+            catch (InterruptedException e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        void release()
+        {
+            mutex.release();
+        }
+
+        boolean isFree()
+        {
+            return mutex.availablePermits() > 0;
+        }
+    }
+
+    static class Philosopher extends Thread {
+        public int number;
+        public Chopstick leftChopstick;
+        public Chopstick rightChopstick;
+
+        Philosopher(int num, Chopstick left, Chopstick right)
+        {
+            number = num;
+            leftChopstick = left;
+            rightChopstick = right;
+        }
+        @Override
+        public void run() {
+            while (true)
+            {
+                leftChopstick.grab();
+                System.out.println("philosopher " + (number+1) + "-grabs left chopstick");
+                rightChopstick.grab();
+                System.out.println("philosopher " + (number+1) + "-grabs left chopstick");
+
+                eat();
+
+                leftChopstick.release();
+                System.out.println("philosopher " + (number+1) + "-releases left chopstick");
+
+                rightChopstick.release();
+                System.out.println("philosopher " + (number+1) + "-releases right chopstick");
+            }
+        }
+
+        void eat()
+        {
+            try {
+                int sleep = ThreadLocalRandom.current().nextInt(0,1000);
+                System.out.println("Philosopher " + (number+1) + " eats for " + sleep);
+                Thread.sleep(sleep);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace(System.out);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        for (int i = 0; i < totalPhilospoher; i++)
+        {
+            chopstick[i] = new Chopstick();
+        }
+        for (int i = 0; i < totalPhilospoher; i++)
+        {
+            philosopher[i] = new Philosopher(i,chopstick[i],chopstick[(i+1) % totalPhilospoher]);
+            philosopher[i].start();
+        }
+
+        while (true)
+        {
+            try {
+                Thread.sleep(1000);
+                boolean deadlock = true;
+                for(Chopstick f : chopstick)
+                {
+                    if(f.isFree())
+                    {
+                        deadlock = false;
+                        break;
+                    }
+                }
+                if(deadlock)
+                {
+                    Thread.sleep(1000);
+                    System.out.println("Everyone Eats");
+                    break;
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace(System.out);
+            }
+        }
+        System.out.println("Exit The Program!");
+        System.exit(0);
+    }
+}

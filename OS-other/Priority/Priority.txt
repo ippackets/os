@@ -1,0 +1,68 @@
+import java.util.Scanner;
+public class PriorityScheduling {
+    public static void main(String args[]) {
+        Scanner s = new Scanner(System.in);
+
+        int x,Num,Processes[],ProcessPriority[],BurstTime[],WaitingTime[],TurnArounndTime[],AverageWaiting,AverageTAT,i;
+
+        Processes = new int[10];
+        ProcessPriority = new int[10];
+        BurstTime = new int[10];
+        WaitingTime = new int[10];
+        TurnArounndTime = new int[10];
+
+        System.out.print("Enter the number of process : ");
+        Num = s.nextInt();
+        System.out.print("\nEnter burst time : time priorities \n");
+
+        for(i=0;i<Num;i++)
+        {
+            System.out.print("\nProcess["+(i+1)+"]:");
+            BurstTime[i] = s.nextInt();
+            ProcessPriority[i] = s.nextInt();
+            Processes[i]=i+1;
+        }
+
+//sorting on the basis of priority
+        for(i=0;i<Num-1;i++)
+        {
+            for(int j=i+1;j<Num;j++)
+            {
+                if(ProcessPriority[i]>ProcessPriority[j])
+                {
+                    x=ProcessPriority[i];
+                    ProcessPriority[i]=ProcessPriority[j];
+                    ProcessPriority[j]=x;
+                    x=BurstTime[i];
+                    BurstTime[i]=BurstTime[j];
+                    BurstTime[j]=x;
+                    x=Processes[i];
+                    Processes[i]=Processes[j];
+                    Processes[j]=x;
+                }
+            }
+        }
+        WaitingTime[0]=0;
+        AverageWaiting=0;
+        TurnArounndTime[0]=BurstTime[0];
+        AverageTAT=TurnArounndTime[0];
+        for(i=1;i<Num;i++)
+        {
+            WaitingTime[i]=TurnArounndTime[i-1];
+            AverageWaiting+=WaitingTime[i];
+            TurnArounndTime[i]=WaitingTime[i]+BurstTime[i];
+            AverageTAT+=TurnArounndTime[i];
+        }
+
+//Displaying the process
+
+        System.out.print("\n\nProcess \t Burst Time \t Wait Time \t Turn Around Time   Priority \n");
+        for(i=0;i<Num;i++)
+            System.out.print("\n   "+Processes[i]+"\t\t   "+BurstTime[i]+"\t\t      "+WaitingTime[i]+"\t\t        "+TurnArounndTime[i]+"\t\t          "+ProcessPriority[i]+"\n");
+        AverageWaiting/=Num;
+        AverageTAT/=Num;
+        System.out.print("\n Average Wait Time : "+AverageWaiting);
+        System.out.print("\n Average Turn Around Time : "+AverageTAT);
+
+    }
+}

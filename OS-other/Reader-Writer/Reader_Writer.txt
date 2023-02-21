@@ -1,0 +1,76 @@
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class ReaderWriter {
+    static Semaphore read = new Semaphore(1);
+    static Semaphore write = new Semaphore(1);
+    static  int readCount = 0;
+
+    static class Read implements Runnable
+    {
+        @Override
+        public void run() {
+            try {
+                read.acquire();
+                readCount++;
+                if(readCount == 1)
+                {
+                    write.acquire();
+                }
+                read.release();
+
+                System.out.println("Thread "+Thread.currentThread().getName() + " is Reading");
+                Thread.sleep(1500);
+                System.out.println("Thread "+Thread.currentThread().getName() + " has FINISHED READING");
+
+                read.acquire();
+                readCount--;
+                if(readCount == 0)
+                {
+                    write.release();
+                }
+                read.release();
+            }catch (InterruptedException e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    static class Write implements Runnable
+    {
+        @Override
+        public void run() {
+            try
+            {
+                write.acquire();
+                System.out.println("Thread "+Thread.currentThread().getName() + " is Writing");
+                Thread.sleep(2500);
+                System.out.println("Thread "+Thread.currentThread().getName() + " has Finished WRITING");
+                write.release();
+            }
+            catch (InterruptedException e)
+            {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception{
+
+        Read read = new Read();
+        Write write = new Write();
+        Thread t1 = new Thread(read);
+        t1.setName("thread-1");
+        Thread t2 = new Thread(read);
+        t2.setName("thread-2");
+        Thread t3 = new Thread(write);
+        t3.setName("thread-3");
+        Thread t4 = new Thread(read);
+        t4.setName("thread-4");
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+    }
+}
