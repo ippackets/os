@@ -1,0 +1,88 @@
+//  Priority CPU Scheduling Algorithm is a modification of FCFS (First Come First Serve) CPU Scheduling Algorithm where the priority of the processes is taken into consideration, the following code is its preemptive form.
+import java.util.Scanner;
+
+class PriorityPreemptiveScheduling {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the number of processes: ");
+        int n = sc.nextInt();
+        int pid[] = new int[n];
+        int at[] = new int[n];
+        int bt[] = new int[n];
+        int pr[] = new int[n];
+        int ct[] = new int[n];
+        int ta[] = new int[n];
+        int wt[] = new int[n];
+        int temp;
+        float avgwt = 0, avgta = 0;
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter process ID: ");
+            pid[i] = sc.nextInt();
+            System.out.print("Enter arrival time: ");
+            at[i] = sc.nextInt();
+            System.out.print("Enter burst time: ");
+            bt[i] = sc.nextInt();
+            System.out.print("Enter priority: ");
+            pr[i] = sc.nextInt();
+        }
+
+        // Sorting processes by priority
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (pr[i] > pr[j]) {
+                    temp = pr[i];
+                    pr[i] = pr[j];
+                    pr[j] = temp;
+                    temp = pid[i];
+                    pid[i] = pid[j];
+                    pid[j] = temp;
+                    temp = at[i];
+                    at[i] = at[j];
+                    at[j] = temp;
+                    temp = bt[i];
+                    bt[i] = bt[j];
+                    bt[j] = temp;
+                }
+            }
+        }
+
+        // Calculating completion time, turnaround time, and waiting time
+        for (int i = 0; i < n; i++) {
+            if (i == 0) {
+                ct[i] = at[i] + bt[i];
+            } else {
+                if (ct[i - 1] < at[i]) {
+                    ct[i] = at[i] + bt[i];
+                } else {
+                    ct[i] = ct[i - 1] + bt[i];
+                }
+            }
+            ta[i] = ct[i] - at[i];
+            wt[i] = ta[i] - bt[i];
+            avgwt += wt[i];
+            avgta += ta[i];
+        }
+
+        // Displaying results
+        System.out.println("\nProcess ID\tArrival Time\tBurst Time\tPriority\tCompletion Time\tTurnaround Time\tWaiting Time");
+        for (int i = 0; i < n; i++) {
+            System.out.println(pid[i] + "\t\t"
+            + at[i] + "\t\t" + bt[i] + "\t\t" + pr[i] + "\t\t" + ct[i] + "\t\t" + ta[i] + "\t\t\t" + wt[i]);
+        }
+        System.out.println("\nAverage Waiting Time: " + (avgwt / n));
+        System.out.println("Average Turnaround Time: " + (avgta / n));
+    }
+}
+
+This is a Java program that implements the Priority Preemptive Scheduling algorithm for process scheduling. The program takes user input for the number of processes, process IDs, arrival times, burst times, and priorities for each process. It then sorts the processes based on their priorities in ascending order. It then calculates the completion time, turnaround time, and waiting time for each process and displays the results, along with the average waiting time and average turnaround time.
+
+The program first imports the java.util.Scanner class to read user input. It then declares several arrays to store the process IDs, arrival times, burst times, priorities, completion times, turnaround times, and waiting times for each process. It also declares a variable to calculate the average waiting time and average turnaround time.
+
+The program then prompts the user to enter the number of processes and reads it using the Scanner class. It then reads the process ID, arrival time, burst time, and priority for each process in a loop using the Scanner.nextInt() method.
+
+The program then sorts the processes by their priority values in ascending order using a nested loop that compares each process with every other process and swaps them if necessary. This step ensures that the processes with the highest priority values are executed first.
+
+The program then calculates the completion time, turnaround time, and waiting time for each process using another loop that iterates through each process. It checks if the current process is the first process, in which case it sets the completion time as the sum of the arrival time and burst time for that process. If it is not the first process, it checks if the completion time of the previous process is less than the arrival time of the current process. If it is, it sets the completion time for the current process as the sum of the arrival time and burst time. If it is not, it sets the completion time for the current process as the sum of the completion time of the previous process and the burst time of the current process. It then calculates the turnaround time as the difference between the completion time and the arrival time, and the waiting time as the difference between the turnaround time and the burst time.
+
+Finally, the program displays the process IDs, arrival times, burst times, priorities, completion times, turnaround times, and waiting times for each process in a tabular format, along with the average waiting time and average turnaround time.

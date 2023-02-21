@@ -1,0 +1,87 @@
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.Semaphore;
+
+public class ProducerConsumer {
+    private static final int BUFFER_SIZE = 5;
+    private static Queue<Integer> buffer = new LinkedList<>();
+    private static Semaphore mutex = new Semaphore(1);
+    private static Semaphore empty = new Semaphore(BUFFER_SIZE);
+    private static Semaphore full = new Semaphore(0);
+
+    public static void main(String[] args) throws InterruptedException {
+        Thread producerThread = new Thread(new Producer());
+        Thread consumerThread = new Thread(new Consumer());
+
+        producerThread.start();
+        consumerThread.start();
+
+        Thread.sleep(100); //This was 10,000
+        System.exit(0);
+    }
+
+    static class Producer implements Runnable {
+        public void run() {
+            int value = 0;
+            while (true) {
+                try {
+                    empty.acquire();
+                    mutex.acquire();
+
+                    buffer.add(value);
+                    System.out.println("Produced " + value);
+                    value++;
+
+                    mutex.release();
+                    full.release();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    static class Consumer implements Runnable {
+        public void run() {
+            while (true) {
+                try {
+                    full.acquire();
+                    mutex.acquire();
+
+                    int value = buffer.poll();
+                    System.out.println("Consumed " + value);
+
+                    mutex.release();
+                    empty.release();
+                    
+                    Thread.sleep(100); //This was 1000
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+
+
+
+The above code is another implementation of the producer-consumer problem in Java using multi-threading and synchronization. This implementation uses semaphores to control access to the shared buffer and ensure that the producer and consumer threads do not access the buffer concurrently.
+
+A semaphore is a synchronization primitive that controls access to a shared resource. It provides a way for threads to acquire and release permits to access the resource. In this code, there are three semaphores used:
+
+mutex semaphore: This semaphore is used to ensure that only one thread can access the shared buffer at a time. It is initialized to 1, which means that only one thread can acquire the permit to access the buffer at a time.
+
+empty semaphore: This semaphore is used to keep track of the number of empty slots in the buffer. It is initialized to the buffer size, which means that there are initially BUFFER_SIZE number of empty slots in the buffer.
+
+full semaphore: This semaphore is used to keep track of the number of filled slots in the buffer. It is initialized to 0, which means that there are initially no filled slots in the buffer.
+
+The Producer and Consumer classes are implemented as inner static classes that implement the Runnable interface. The run() method of these classes contains the code that will be executed by the threads.
+
+In the Producer class, the run() method acquires a permit from the empty semaphore, which means that there is an empty slot in the buffer to write to. It then acquires the mutex semaphore to gain exclusive access to the shared buffer. It adds an element to the buffer using the add() method of the Queue interface, prints a message indicating the element has been produced, and releases the mutex semaphore. It then releases a permit to the full semaphore, indicating that there is one more filled slot in the buffer.
+
+In the Consumer class, the run() method acquires a permit from the full semaphore, which means that there is a filled slot in the buffer to read from. It then acquires the mutex semaphore to gain exclusive access to the shared buffer. It removes an element from the buffer using the poll() method of the Queue interface, prints a message indicating the element has been consumed, and releases the mutex semaphore. It then releases a permit to the empty semaphore, indicating that there is one more empty slot in the buffer. The thread then sleeps for a short time using the Thread.sleep() method before continuing with the next iteration of the loop.
+
+In the main() method, two threads are created for the Producer and Consumer classes, and their start() methods are called to start the threads. The Thread.sleep() method is called to pause the main thread for a short time before the program exits.
+
+Overall, this implementation of the producer-consumer problem using semaphores is a more efficient and elegant solution compared to the previous implementation that used synchronized blocks. The use of semaphores allows for finer-grained control of the shared buffer, resulting in better performance and reduced potential for synchronization issues.
+

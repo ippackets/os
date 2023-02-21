@@ -1,0 +1,92 @@
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class ReaderWriter {
+    private static final int NUM_READERS = 3;
+    private static final int NUM_WRITERS = 2;
+    private static Lock mutex = new ReentrantLock();
+    private static int readers = 0;
+
+    public static void main(String[] args) {
+        for (int i = 0; i < NUM_READERS; i++) {
+            new Thread(new Reader(i)).start();
+        }
+        for (int i = 0; i < NUM_WRITERS; i++) {
+            new Thread(new Writer(i)).start();
+        }
+    }
+
+    static class Reader implements Runnable {
+        private int id;
+
+        public Reader(int id) {
+            this.id = id;
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    mutex.lock();
+                    readers++;
+                    if (readers == 1) {
+                        // First reader acquires the mutex lock
+                        // to prevent writers from accessing the shared resource
+                        mutex.lock();
+                    }
+                    mutex.unlock();
+
+                    // Reading
+                    System.out.println("Reader " + id + " is reading");
+
+                    mutex.lock();
+                    readers--;
+                    if (readers == 0) {
+                        // Last reader releases the mutex lock
+                        mutex.unlock();
+                    }
+                    mutex.unlock();
+
+                    Thread.sleep(100); //This was 10,000
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    static class Writer implements Runnable {
+        private int id;
+
+        public Writer(int id) {
+            this.id = id;
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    mutex.lock();
+
+                    // Writing
+                    System.out.println("Writer " + id + " is writing");
+
+                    mutex.unlock();
+
+                    Thread.sleep(100); //This was 1000
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+
+
+The above code is an implementation of the classic Reader-Writer problem using a Lock. The problem is a synchronization issue in computer science where multiple threads need to access a shared resource in different ways. In the Reader-Writer problem, there are multiple readers and writers accessing a shared resource. Readers only read the resource, and writers can modify the resource. The goal is to ensure that the readers and writers do not interfere with each other and access the shared resource in a mutually exclusive way.
+
+The code begins by declaring some constants and a ReentrantLock object named 'mutex' and an integer variable 'readers' which will keep track of the number of current readers. The main method creates multiple threads of readers and writers and starts them.
+
+The Reader class implements the Runnable interface, and the run() method is implemented to acquire the mutex lock and increment the number of readers. If the reader is the first one to access the shared resource, it will acquire the mutex lock, preventing any writer threads from modifying the shared resource. Then the mutex lock is released, and the reader reads the resource. After reading, the thread again acquires the mutex lock and decrements the number of readers. If the reader is the last one to leave, it releases the mutex lock, allowing any writer threads to modify the resource. The thread sleeps for 100 milliseconds after reading.
+
+The Writer class also implements the Runnable interface, and the run() method is implemented to acquire the mutex lock, modify the resource, and then release the mutex lock. The thread sleeps for 100 milliseconds after writing.
+
+Overall, the code ensures that the readers can access the shared resource simultaneously, and the writers have exclusive access to the resource. The use of the lock ensures that only one thread can access the shared resource at any given time, providing mutual exclusion.

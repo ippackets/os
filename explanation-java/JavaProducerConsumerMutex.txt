@@ -1,0 +1,79 @@
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class ProducerConsumer {
+    private static final int BUFFER_SIZE = 5;
+    private static Queue<Integer> buffer = new LinkedList<>();
+
+    public static void main(String[] args) throws InterruptedException {
+        Thread producerThread = new Thread(new Producer());
+        Thread consumerThread = new Thread(new Consumer());
+
+        producerThread.start();
+        consumerThread.start();
+
+        Thread.sleep(100); //This was 10,000
+        System.exit(0);
+    }
+
+    static class Producer implements Runnable {
+        public void run() {
+            int value = 0;
+            while (true) {
+                synchronized (buffer) {
+                    while (buffer.size() == BUFFER_SIZE) {
+                        try {
+                            buffer.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    buffer.add(value);
+                    System.out.println("Produced " + value);
+                    value++;
+                    buffer.notify();
+                }
+            }
+        }
+    }
+
+    static class Consumer implements Runnable {
+        public void run() {
+            while (true) {
+                synchronized (buffer) {
+                    while (buffer.size() == 0) {
+                        try {
+                            buffer.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    int value = buffer.poll();
+                    System.out.println("Consumed " + value);
+                    buffer.notify();
+                    try {
+                        Thread.sleep(100); //This was 1000
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+}
+
+The above code is an implementation of the producer-consumer problem in Java using multi-threading and synchronization.
+
+The producer-consumer problem is a classic synchronization problem where a producer produces data and puts it into a shared buffer, while a consumer consumes the data from the buffer. The problem arises when multiple producers and consumers access the buffer concurrently, which can lead to race conditions, deadlocks, and other synchronization issues.
+
+To solve this problem, the code uses the LinkedList and Queue data structures provided by the Java Collections framework to implement the shared buffer. The buffer has a fixed size of 5, which is defined as a constant variable named BUFFER_SIZE.
+
+The Producer and Consumer classes are implemented as inner static classes that implement the Runnable interface. The run() method of these classes contains the code that will be executed by the threads.
+
+The Producer class adds elements to the buffer using the add() method of the Queue interface. If the buffer is full, the producer thread waits using the wait() method until the consumer thread removes an element from the buffer using the poll() method. After adding an element to the buffer, the producer thread calls the notify() method to notify the waiting threads that a new element has been added to the buffer.
+
+The Consumer class removes elements from the buffer using the poll() method. If the buffer is empty, the consumer thread waits using the wait() method until the producer thread adds an element to the buffer. After removing an element from the buffer, the consumer thread calls the notify() method to notify the waiting threads that an element has been removed from the buffer.
+
+In the main() method, two threads are created for the Producer and Consumer classes, and their start() methods are called to start the threads. The Thread.sleep() method is called to pause the main thread for a short time before the program exits.
+
+Note that the code includes several synchronized blocks to ensure that multiple threads do not access the shared buffer concurrently. These blocks use the synchronized keyword to lock the buffer object, which prevents other threads from accessing it until the current thread releases the lock.

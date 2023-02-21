@@ -1,0 +1,65 @@
+//  Priority CPU Scheduling Algorithm is a modification of FCFS (First Come First Serve) CPU Scheduling Algorithm where the priority of the processes is taken into consideration, the following code is its non-preemptive form.
+import java.util.Scanner;
+
+class PriorityNonPreemptive {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        int n, priority[], burstTime[], process[];
+
+        System.out.print("Enter the number of processes: ");
+        n = input.nextInt();
+
+        priority = new int[n];
+        burstTime = new int[n];
+        process = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter priority, burst time, and process number for process " + (i + 1) + ": ");
+            priority[i] = input.nextInt();
+            burstTime[i] = input.nextInt();
+            process[i] = input.nextInt();
+        }
+
+        // Sorting the processes by priority
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (priority[i] > priority[j]) {
+                    int temp = priority[i];
+                    priority[i] = priority[j];
+                    priority[j] = temp;
+
+                    temp = burstTime[i];
+                    burstTime[i] = burstTime[j];
+                    burstTime[j] = temp;
+
+                    temp = process[i];
+                    process[i] = process[j];
+                    process[j] = temp;
+                }
+            }
+        }
+
+        int completionTime[] = new int[n];
+        completionTime[0] = burstTime[0];
+        for (int i = 1; i < n; i++) {
+            completionTime[i] = completionTime[i - 1] + burstTime[i];
+        }
+
+        System.out.println("Process \t Priority \t Burst Time \t Completion Time");
+        for (int i = 0; i < n; i++) {
+            System.out.println(process[i] + "\t\t" + priority[i] + "\t\t" + burstTime[i] + "\t\t" + completionTime[i]);
+        }
+    }
+}
+
+
+
+This is a Java program that implements the Priority Non-Preemptive scheduling algorithm.
+
+The program begins by accepting the number of processes, priority, burst time, and process number for each process from the user. It then sorts the processes by priority using a nested for loop that swaps the priority, burst time, and process number values of two elements if the priority of the first element is greater than the priority of the second element.
+
+The program then calculates the completion time for each process. The completion time of the first process is equal to its burst time. The completion time for each subsequent process is calculated by adding its burst time to the completion time of the previous process.
+
+Finally, the program outputs a table that shows the process number, priority, burst time, and completion time for each process. The output is formatted using escape sequences to create a tabular structure.
+
+Note that this implementation assumes that the processes are ordered by arrival time, and that there is no preemption (i.e., a process will continue to execute until it has completed).

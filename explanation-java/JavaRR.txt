@@ -1,0 +1,114 @@
+
+//  RR (Round Robin) is a preemptive CPU scheduling algorithm where each process is assigned a time slot known as time quantum in cyclic way, FCFS (First Come First Serve) CPU scheduling algorithm is nothing but its non-preemptive form.
+
+import java.util.Scanner;
+
+public class RoundRobin {
+    
+    public static void main(String[] args) {
+        
+        Scanner sc = new Scanner(System.in);
+        
+        System.out.print("Enter the number of processes: ");
+        
+        int n = sc.nextInt();
+        
+        int[] burst_time = new int[n];
+        int[] waiting_time = new int[n];
+        int[] turnaround_time = new int[n];
+        int[] completion_time = new int[n];
+        int quantum;
+
+        System.out.print("Enter the burst time for each process: ");
+        
+        for (int i = 0; i < n; i++) 
+        
+        {
+            burst_time[i] = sc.nextInt();
+        }
+
+        System.out.print("Enter the time quantum: ");
+        quantum = sc.nextInt();
+
+        int current_time = 0;
+        int remaining_time[] = new int[n];
+        
+        for (int i = 0; i < n; i++) 
+        
+        {
+            remaining_time[i] = burst_time[i];
+        }
+        
+        while (true) 
+        
+        {
+            boolean done = true;
+            
+            for (int i = 0; i < n; i++) 
+            
+            {
+                if (remaining_time[i] > 0) 
+                
+                {
+                    done = false;
+                    
+                    if (remaining_time[i] > quantum) 
+                    
+                    {
+                        current_time += quantum;
+                        remaining_time[i] -= quantum;
+                    } 
+                    
+                    else 
+                    
+                    {
+                        current_time = current_time + remaining_time[i];
+                        
+                        waiting_time[i] = current_time - burst_time[i];
+                        
+                        remaining_time[i] = 0;
+                    }
+                }
+            }
+            
+            if (done == true) 
+            
+            {
+                break;
+            }
+        }
+        
+        for (int i = 0; i < n; i++) 
+        
+        {
+            turnaround_time[i] = burst_time[i] + waiting_time[i];
+            
+            completion_time[i] = turnaround_time[i] + waiting_time[i];
+        }
+
+        System.out.println("Process\t Burst Time\t Waiting Time\t Turnaround Time\t Completion Time");
+        
+        for (int i = 0; i < n; i++) 
+        
+        {
+            System.out.println("P[" + (i + 1) + "]" + "\t\t" + burst_time[i] + "\t\t" + waiting_time[i] + "\t\t" + turnaround_time[i] + "\t\t" + completion_time[i]);
+        }
+        
+    }
+    
+}
+
+
+
+
+The given code is an implementation of the Round Robin CPU scheduling algorithm.
+
+The Round Robin scheduling algorithm is a preemptive algorithm that is widely used in operating systems. It works by giving each process a fixed time slice or time quantum and then moving to the next process in the queue. If a process does not complete within the given time quantum, it is preempted and added to the end of the queue.
+
+The program takes input from the user for the number of processes, the burst time of each process, and the time quantum. It then initializes arrays for waiting time, turnaround time, and completion time.
+
+The code then enters into an infinite loop until all processes have been executed. Within the loop, it checks if any process has remaining time or not. If a process has remaining time, it enters the if block. If the remaining time is greater than the time quantum, the time quantum is subtracted from the remaining time, and the current time is increased by the time quantum. If the remaining time is less than or equal to the time quantum, the remaining time is subtracted from the burst time, and waiting time is calculated by subtracting the burst time from the current time.
+
+After all the processes have been executed, the waiting time, turnaround time, and completion time are calculated using their respective formulas. Finally, the program prints out the results in tabular form with process ID, burst time, waiting time, turnaround time, and completion time for each process.
+
+Overall, this code demonstrates the Round Robin CPU scheduling algorithm in Java.

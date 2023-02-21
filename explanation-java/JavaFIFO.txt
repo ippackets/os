@@ -1,0 +1,39 @@
+import java.util.LinkedList;
+
+public class FIFO {
+
+    public static void main(String[] args) {
+        int page_faults = 0;
+        int number_of_frames;
+
+        int pages[] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2};
+        number_of_frames = 4;
+
+        LinkedList<Integer> frames = new LinkedList<>();
+
+        for (int i = 0; i < pages.length; i++) {
+            if (frames.size() < number_of_frames) {
+                if (!frames.contains(pages[i])) {
+                    frames.add(pages[i]);
+                    page_faults++;
+                }
+            } else {
+                if (!frames.contains(pages[i])) {
+                    frames.pop();
+                    frames.add(pages[i]);
+                    page_faults++;
+                }
+            }
+        }
+
+        System.out.println("Number of page faults: " + page_faults);
+    }
+}
+
+The above code implements the First-In-First-Out (FIFO) page replacement algorithm in a simple page reference string.
+
+The main method initializes the page reference string (an array called "pages") and the number of frames available in the memory. It also initializes a LinkedList data structure called "frames" to hold the pages currently in memory.
+
+The program then processes each page in the page reference string. If the number of frames currently in use is less than the total number of available frames, the program simply checks whether the page is already in the memory frames. If the page is not in the frames, it adds the page to the frames list and increments the page_faults counter. If the number of frames in use equals the total number of available frames, the program checks whether the page is already in the frames. If it is not in the frames, it removes the oldest page (using the pop method) and adds the new page to the frames list, and increments the page_faults counter.
+
+The program then outputs the total number of page faults that occurred during the execution of the algorithm

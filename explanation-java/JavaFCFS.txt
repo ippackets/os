@@ -1,0 +1,84 @@
+
+//  FCFS (First Come First Serve) is a non-preemptive CPU scheduling algorithm that follows FIFO (First In First Out) approach to execute processes in the queue, RR (Round Robin) CPU scheduling algorithm is nothing but its preemptive form.
+
+import java.util.Scanner;
+
+public class FCFS {
+    
+    public static void main(String[] args) {
+        
+        Scanner sc = new Scanner(System.in);
+        
+        System.out.print("Enter the number of processes: ");
+        
+        int n = sc.nextInt();
+        
+        int[] arrival_time = new int[n];
+        int[] burst_time = new int[n];
+        int[] completion_time = new int[n];
+        int[] waiting_time = new int[n];
+        int[] turn_around_time = new int[n];
+
+        for (int i = 0; i < n; i++)
+        
+        {
+            System.out.print("Enter arrival time for process " + (i+1) + ": ");
+            arrival_time[i] = sc.nextInt();
+            
+            System.out.print("Enter burst time for process " + (i+1) + ": ");
+            
+            burst_time[i] = sc.nextInt();
+        }
+
+        //calculate completion time
+        
+        completion_time[0] = arrival_time[0] + burst_time[0];
+        for (int i = 1; i < n; i++) 
+        
+        {
+            completion_time[i] = completion_time[i-1] + burst_time[i];
+        }
+
+        //calculate turn around time
+        
+        for (int i = 0; i < n; i++) 
+        
+        {
+            turn_around_time[i] = completion_time[i] - arrival_time[i];
+        }
+
+        //calculate waiting time
+        
+        for (int i = 0; i < n; i++) 
+        
+        {
+            waiting_time[i] = turn_around_time[i] - burst_time[i];
+        }
+
+        //print results
+        
+        System.out.println("Process\t Arrival Time\t Burst Time\t Completion Time\t Turnaround Time\t Waiting Time");
+        
+        for (int i = 0; i < n; i++) 
+        
+        {
+            System.out.println((i+1) + "\t\t " + arrival_time[i] + "\t\t " + burst_time[i] + "\t\t " + completion_time[i] + "\t\t " + turn_around_time[i] + "\t\t\t " + waiting_time[i]);
+        }
+
+        sc.close();
+        
+    }
+}
+
+This code is an implementation of the First Come First Serve (FCFS) scheduling algorithm for process scheduling. The FCFS algorithm is a non-preemptive scheduling algorithm in which the process that arrives first is executed first.
+
+The code prompts the user to input the number of processes and their arrival time and burst time. Then it calculates the completion time, turn around time, and waiting time for each process using the formulas:
+
+completion_time[i] = completion_time[i-1] + burst_time[i] (for i > 0)
+completion_time[0] = arrival_time[0] + burst_time[0]
+turn_around_time[i] = completion_time[i] - arrival_time[i]
+waiting_time[i] = turn_around_time[i] - burst_time[i]
+
+Finally, the code prints the results in a tabular form with columns for process number, arrival time, burst time, completion time, turn around time, and waiting time.
+
+Note that this code assumes that the processes arrive in increasing order of their arrival time. If the processes arrive in any other order, the results may be incorrect.

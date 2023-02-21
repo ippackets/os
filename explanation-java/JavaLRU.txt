@@ -1,0 +1,54 @@
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class LRU {
+    static class LRUCache extends LinkedHashMap<Integer, Integer> {
+        private int capacity;
+
+        public LRUCache(int capacity) {
+            super(capacity, 0.75f, true);
+            this.capacity = capacity;
+        }
+
+        public int get(int key) {
+            return super.getOrDefault(key, -1);
+        }
+
+        public void put(int key, int value) {
+            super.put(key, value);
+        }
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Integer, Integer> eldest) {
+            return size() > capacity;
+        }
+    }
+
+    public static void main(String[] args) {
+        LRUCache cache = new LRUCache(2);
+
+        cache.put(1, 1);
+        cache.put(2, 2);
+        System.out.println(cache.get(1));
+        cache.put(3, 3);
+        System.out.println(cache.get(2));
+        cache.put(4, 4);
+        System.out.println(cache.get(1));
+        System.out.println(cache.get(3));
+        System.out.println(cache.get(4));
+    }
+}
+
+
+
+The above Java code implements a Least Recently Used (LRU) cache using a LinkedHashMap. The LRU algorithm keeps the most recently used items in the cache, and removes the least recently used item when the cache reaches its capacity.
+
+The code defines a nested static class LRUCache, which extends LinkedHashMap<Integer, Integer>. The LRUCache constructor takes a capacity parameter and passes it to the superclass constructor, along with two other parameters: 0.75f, the load factor that determines when the cache should resize, and true, which specifies that the LinkedHashMap should use access order instead of insertion order. Access order means that the most recently accessed item is moved to the end of the linked list, while the least recently accessed item is at the front.
+
+The get method of the LRUCache class calls the getOrDefault method of the LinkedHashMap superclass, which returns the value for a given key if it exists in the cache, or -1 if the key is not found.
+
+The put method of the LRUCache class simply calls the put method of the LinkedHashMap superclass, which adds the key-value pair to the cache.
+
+The removeEldestEntry method is an override of a LinkedHashMap method that is called when an item is added to the cache. It checks if the cache size is greater than the capacity, and returns true if it is, which signals the LinkedHashMap to remove the least recently used item from the cache.
+
+In the main method, an instance of the LRUCache class is created with a capacity of 2. The cache is then populated with key-value pairs using the put method. The get method is used to access the value of certain keys in the cache, and the output is printed to the console. As the cache reaches its capacity, the LRU algorithm evicts the least recently used item from the cache.

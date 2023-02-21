@@ -1,0 +1,90 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class Optimal {
+    static class PageReplacementAlgorithm {
+        private List<Integer> frames;
+        private int[] pages;
+        private int pageFaults;
+        private int capacity;
+
+        public PageReplacementAlgorithm(int capacity, int[] pages) {
+            this.frames = new ArrayList<>();
+            this.pages = pages;
+            this.capacity = capacity;
+            this.pageFaults = 0;
+        }
+
+        public void optimalAlgorithm() {
+            for (int i = 0; i < pages.length; i++) {
+                if (frames.size() < capacity) {
+                    if (!frames.contains(pages[i])) {
+                        frames.add(pages[i]);
+                        pageFaults++;
+                    }
+                } else {
+                    if (!frames.contains(pages[i])) {
+                        int j;
+                        int[] indexes = new int[capacity];
+                        boolean indexFound = false;
+                        for (int k = 0; k < frames.size(); k++) {
+                            for (j = i; j < pages.length; j++) {
+                                if (frames.get(k) == pages[j]) {
+                                    indexFound = true;
+                                    break;
+                                }
+                            }
+                            if (!indexFound) {
+                                indexes[k] = pages.length;
+                            } else {
+                                indexes[k] = j;
+                                indexFound = false;
+                            }
+                        }
+                        int max = indexes[0];
+                        int replaceIndex = 0;
+                        for (int k = 1; k < capacity; k++) {
+                            if (indexes[k] > max) {
+                                max = indexes[k];
+                                replaceIndex = k;
+                            }
+                        }
+                        frames.remove(replaceIndex);
+                        frames.add(replaceIndex, pages[i]);
+                        pageFaults++;
+                    }
+                }
+                System.out.println(frames);
+            }
+        }
+
+        public int getPageFaults() {
+            return pageFaults;
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] pages = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2};
+        int capacity = 4;
+        PageReplacementAlgorithm pra = new PageReplacementAlgorithm(capacity, pages);
+        pra.optimalAlgorithm();
+        System.out.println("Number of page faults: " + pra.getPageFaults());
+    }
+}
+
+
+
+
+This Java program implements the Optimal page replacement algorithm. The Optimal algorithm is an algorithm that, for each page fault, replaces the page that will not be needed for the longest period of time.
+
+The program creates a class named PageReplacementAlgorithm, which has an implementation of the Optimal algorithm. The algorithm is performed in the optimalAlgorithm() method of the class. The method takes an array of page references pages and a capacity capacity as parameters.
+
+The frames list is used to store the pages that are currently in the memory. The method iterates through the pages array, and for each page, it first checks if the page is already in the frames list. If it is, it moves to the next page.
+
+If the frames list is not full and the page is not in the list, the page is added to the list, and the page faults count is incremented.
+
+If the frames list is full and the page is not in the list, the method tries to find the page that will not be needed for the longest period of time. To do this, it looks at the remaining pages and finds the indexes of the frames that are not going to be used for the longest period of time. The frame with the maximum index is the one that is replaced with the new page.
+
+The getPageFaults() method returns the total number of page faults that occurred during the execution of the algorithm.
+
+In the main method of the Optimal class, the program creates an instance of the PageReplacementAlgorithm class with the page references and the capacity. It then calls the optimalAlgorithm() method to perform the algorithm and prints the number of page faults.

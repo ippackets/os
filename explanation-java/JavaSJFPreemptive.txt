@@ -1,0 +1,76 @@
+//  SJF (Shortest Job First), also known as SRTN (Shortest Remaining Time Next) is a CPU Scheduling Algorithm, the following code is in its preemptive form.
+import java.util.*;
+
+public class SJF {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter the number of processes: ");
+        int n = sc.nextInt();
+
+        int[] burstTime = new int[n];
+        int[] process = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            burstTime[i] = sc.nextInt();
+            process[i] = i + 1;
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n - 1 - i; j++) {
+                if (burstTime[j] > burstTime[j + 1]) {
+                    int temp = burstTime[j];
+                    burstTime[j] = burstTime[j + 1];
+                    burstTime[j + 1] = temp;
+
+                    temp = process[j];
+                    process[j] = process[j + 1];
+                    process[j + 1] = temp;
+                }
+            }
+        }
+
+        int[] waitTime = new int[n];
+        int[] turnAroundTime = new int[n];
+
+        waitTime[0] = 0;
+        for (int i = 1; i < n; i++) {
+            waitTime[i] = burstTime[i - 1] + waitTime[i - 1];
+        }
+
+        for (int i = 0; i < n; i++) {
+            turnAroundTime[i] = burstTime[i] + waitTime[i];
+        }
+
+        System.out.println("Process\tBurst Time\tWait Time\tTurnaround Time");
+        for (int i = 0; i < n; i++) {
+            System.out.println(process[i] + "\t\t" + burstTime[i] + "\t\t" + waitTime[i] + "\t\t" + turnAroundTime[i]);
+        }
+
+        sc.close();
+    }
+}
+
+
+
+The above code is an implementation of the Shortest Job First (SJF) scheduling algorithm in Java. The SJF algorithm is a non-preemptive scheduling algorithm in which the process with the shortest burst time is scheduled first.
+
+The program prompts the user to enter the number of processes to be scheduled, and the burst time of each process. It then sorts the processes based on their burst times using the bubble sort algorithm.
+
+After sorting, the program calculates the waiting time and turnaround time for each process, where the waiting time is the time a process waits in the ready queue before it can start executing, and the turnaround time is the time taken from the moment a process enters the ready queue until it completes execution.
+
+Finally, the program prints the process ID, burst time, waiting time, and turnaround time for each process in a table.
+
+The program uses four arrays:
+
+burstTime: an array to store the burst time of each process.
+process: an array to store the ID of each process.
+waitTime: an array to store the waiting time of each process.
+turnAroundTime: an array to store the turnaround time of each process.
+The main steps of the program are:
+
+Prompt the user to enter the number of processes and their burst time.
+Sort the processes based on their burst time using the bubble sort algorithm.
+Calculate the waiting time and turnaround time for each process.
+Print the results in a table

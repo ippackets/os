@@ -1,0 +1,98 @@
+import java.util.concurrent.Semaphore;
+
+public class ReaderWriter {
+    private static final int NUM_READERS = 3;
+    private static final int NUM_WRITERS = 2;
+    private static Semaphore mutex = new Semaphore(1);
+    private static Semaphore wrt = new Semaphore(1);
+    private static int readers = 0;
+
+    public static void main(String[] args) {
+        for (int i = 0; i < NUM_READERS; i++) {
+            new Thread(new Reader(i)).start();
+        }
+        for (int i = 0; i < NUM_WRITERS; i++) {
+            new Thread(new Writer(i)).start();
+        }
+    }
+
+    static class Reader implements Runnable {
+        private int id;
+
+        public Reader(int id) {
+            this.id = id;
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    mutex.acquire();
+                    readers++;
+                    if (readers == 1) {
+                        wrt.acquire();
+                    }
+                    mutex.release();
+
+                    // Reading
+                    System.out.println("Reader " + id + " is reading");
+
+                    mutex.acquire();
+                    readers--;
+                    if (readers == 0) {
+                        wrt.release();
+                    }
+                    mutex.release();
+
+                    Thread.sleep(100); //This was 10,000
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    static class Writer implements Runnable {
+        private int id;
+
+        public Writer(int id) {
+            this.id = id;
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    wrt.acquire();
+
+                    // Writing
+                    System.out.println("Writer " + id + " is writing");
+
+                    wrt.release();
+
+                    Thread.sleep(100); //This was 1000
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+
+
+
+
+This is an implementation of the Reader-Writer problem using semaphores in Java. The goal of this problem is to manage access to a shared resource that can be read or written to by multiple threads. In this implementation, there are multiple readers and multiple writers. Readers can access the shared resource simultaneously, but writers must have exclusive access to the shared resource.
+
+The code begins by defining the number of readers and writers, and creating two semaphores: "mutex" and "wrt". "mutex" is used to manage access to the "readers" count variable, which keeps track of the number of readers currently accessing the shared resource. "wrt" is used to manage access to the shared resource, ensuring that only one writer can access it at a time.
+
+The main method creates the threads for the readers and writers, and starts them running.
+
+The Reader class implements the Runnable interface, and contains a run method. Inside the run method, a while loop ensures that the thread keeps running indefinitely. At the start of each iteration of the loop, the thread acquires the "mutex" semaphore. It then increments the "readers" count variable, and checks whether this is the first reader accessing the shared resource. If so, it acquires the "wrt" semaphore, preventing any writers from accessing the shared resource. It then releases the "mutex" semaphore.
+
+The thread then proceeds to read the shared resource (in this case, it simply prints a message to the console). After it has finished reading, the thread acquires the "mutex" semaphore again, decrements the "readers" count variable, and checks whether this was the last reader accessing the shared resource. If so, it releases the "wrt" semaphore, allowing writers to access the shared resource. It then releases the "mutex" semaphore.
+
+The Writer class implements the Runnable interface, and contains a run method. Inside the run method, a while loop ensures that the thread keeps running indefinitely. At the start of each iteration of the loop, the thread acquires the "wrt" semaphore, ensuring that it has exclusive access to the shared resource. It then proceeds to write to the shared resource (in this case, it simply prints a message to the console). After it has finished writing, the thread releases the "wrt" semaphore.
+
+Both the Reader and Writer classes include a Thread.sleep method at the end of each iteration of their respective while loops. This is simply to slow down the output of the program so that it is easier to follow.
+
+Overall, this implementation ensures that multiple readers can access the shared resource simultaneously, but only one writer can access it at a time. This prevents conflicts and ensures that the shared resource is accessed safely.
+

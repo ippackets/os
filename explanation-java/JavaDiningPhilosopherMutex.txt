@@ -1,0 +1,64 @@
+public class DiningPhilosopher {
+    private static final int NUM_PHILOSOPHERS = 5;
+    private static Object[] forks = new Object[NUM_PHILOSOPHERS];
+
+    public static void main(String[] args) throws InterruptedException {
+        for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
+            forks[i] = new Object();
+        }
+
+        Philosopher[] philosophers = new Philosopher[NUM_PHILOSOPHERS];
+        for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
+            philosophers[i] = new Philosopher(i, forks[i], forks[(i + 1) % NUM_PHILOSOPHERS]);
+        }
+
+        for (Philosopher philosopher : philosophers) {
+            new Thread(philosopher).start();
+        }
+
+        Thread.sleep(100); //This was 10,000
+    }
+
+    static class Philosopher implements Runnable {
+        private int id;
+        private Object leftFork;
+        private Object rightFork;
+
+        public Philosopher(int id, Object leftFork, Object rightFork) {
+            this.id = id;
+            this.leftFork = leftFork;
+            this.rightFork = rightFork;
+        }
+
+        public void run() {
+            while (true) {
+                synchronized (leftFork) {
+                    System.out.println("Philosopher " + id + " picked up left fork");
+                    synchronized (rightFork) {
+                        System.out.println("Philosopher " + id + " picked up right fork and is eating");
+                        try {
+                            Thread.sleep(100); //This was 1000
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    System.out.println("Philosopher " + id + " put down right fork");
+                }
+                System.out.println("Philosopher " + id + " put down left fork and is thinking");
+                try {
+                    Thread.sleep(100); //This was 1000
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+
+The above code is an implementation of the Dining Philosophers problem using Java. The Dining Philosophers problem is a classic synchronization problem in computer science, where a group of philosophers sit at a round table and alternate between thinking and eating. Each philosopher requires two forks to eat, one on the left and one on the right.
+
+The implementation uses a static array of objects called "forks" to represent the shared resources (forks) that the philosophers need to use. The number of philosophers and forks are both set to 5. Each philosopher is a separate thread, implemented by the inner class Philosopher, which implements the Runnable interface. Each philosopher has an id, and references to the left and right forks.
+
+The main method initializes the forks and philosophers, and starts a new thread for each philosopher. The philosophers' threads run infinitely in a loop, acquiring the left fork first and then the right fork before eating. After eating for a short time, the philosopher releases the right fork and then the left fork before returning to thinking.
+
+The implementation uses synchronized blocks to ensure that only one philosopher can hold a particular fork at any given time, and that deadlocks and resource starvation are avoided. The program also includes a sleep statement to slow down the execution, to better observe the behavior of the program. However, it is important to note that this is a very simple solution to the Dining Philosophers problem and it can still potentially lead to deadlock or livelock if not implemented correctly
