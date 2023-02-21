@@ -1,0 +1,56 @@
+import java.util.concurrent.Semaphore;
+
+public class DiningPhilosopher {
+    private static final int NUM_PHILOSOPHERS = 5;
+    private static Semaphore[] forks = new Semaphore[NUM_PHILOSOPHERS];
+    private static Semaphore maxDiners = new Semaphore(NUM_PHILOSOPHERS - 1);
+
+    public static void main(String[] args) throws InterruptedException {
+        for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
+            forks[i] = new Semaphore(1);
+        }
+
+        for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
+            new Thread(new Philosopher(i)).start();
+        }
+
+        Thread.sleep(100); //This was 10,000
+    }
+
+    static class Philosopher implements Runnable {
+        private int id;
+        private Semaphore leftFork;
+        private Semaphore rightFork;
+
+        public Philosopher(int id) {
+            this.id = id;
+            this.leftFork = forks[id];
+            this.rightFork = forks[(id + 1) % NUM_PHILOSOPHERS];
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    maxDiners.acquire();
+                    leftFork.acquire();
+                    rightFork.acquire();
+
+                    System.out.println("Philosopher " + id + " is eating");
+
+                    Thread.sleep(100); //This was 1000
+
+                    leftFork.release();
+                    rightFork.release();
+                    maxDiners.release();
+                    
+                    System.out.println("Philosopher " + id + " is thinking");
+                    
+                    Thread.sleep(100); //This was 1000
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+

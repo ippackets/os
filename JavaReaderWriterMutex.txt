@@ -1,0 +1,81 @@
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class ReaderWriter {
+    private static final int NUM_READERS = 3;
+    private static final int NUM_WRITERS = 2;
+    private static Lock mutex = new ReentrantLock();
+    private static int readers = 0;
+
+    public static void main(String[] args) {
+        for (int i = 0; i < NUM_READERS; i++) {
+            new Thread(new Reader(i)).start();
+        }
+        for (int i = 0; i < NUM_WRITERS; i++) {
+            new Thread(new Writer(i)).start();
+        }
+    }
+
+    static class Reader implements Runnable {
+        private int id;
+
+        public Reader(int id) {
+            this.id = id;
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    mutex.lock();
+                    readers++;
+                    if (readers == 1) {
+                        // First reader acquires the mutex lock
+                        // to prevent writers from accessing the shared resource
+                        mutex.lock();
+                    }
+                    mutex.unlock();
+
+                    // Reading
+                    System.out.println("Reader " + id + " is reading");
+
+                    mutex.lock();
+                    readers--;
+                    if (readers == 0) {
+                        // Last reader releases the mutex lock
+                        mutex.unlock();
+                    }
+                    mutex.unlock();
+
+                    Thread.sleep(100); //This was 10,000
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    static class Writer implements Runnable {
+        private int id;
+
+        public Writer(int id) {
+            this.id = id;
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    mutex.lock();
+
+                    // Writing
+                    System.out.println("Writer " + id + " is writing");
+
+                    mutex.unlock();
+
+                    Thread.sleep(100); //This was 1000
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
